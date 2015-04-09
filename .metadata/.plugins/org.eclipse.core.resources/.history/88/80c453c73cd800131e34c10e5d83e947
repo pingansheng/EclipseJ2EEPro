@@ -1,0 +1,354 @@
+package com.pas.survey.struts2.action;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.interceptor.RequestAware;
+import org.apache.struts2.util.ServletContextAware;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.Gson;
+import com.pas.survey.model.Question;
+import com.pas.survey.model.Survey;
+import com.pas.survey.model.User;
+import com.pas.survey.model.statistic.OptionStatisticModel;
+import com.pas.survey.model.statistic.QuestionStatisticModel;
+import com.pas.survey.service.StatisticService;
+import com.pas.survey.service.SurveyService;
+import com.pas.survey.struts2.UserAware;
+import com.pas.survey.util.ValidateUtil;
+
+/**
+ * SurveyAction
+ * 
+ * @author pingansheng
+ * 
+ */
+@Controller("surveyaction")
+@Scope("prototype")
+public class SurveyAction extends BaseAction<Survey> implements UserAware,
+		RequestAware, ServletContextAware {
+
+	private static final long serialVersionUID = 2799920547942837306L;
+
+	// Logo图片文件信息
+	private File logoPhoto;
+	private String logoPhotoFileName;
+	private String logoPhotoContentType;
+	private String root;
+	@Resource(name = "surveyService")
+	private SurveyService surveyService;
+	@Resource(name = "statisticService")
+	private StatisticService statisticService;
+	// 调查集合
+	private List<Survey> mySurveys;
+
+	// 接收sid参数
+	private Integer sid;
+
+	// 内部对象接收引用
+	private User user;
+
+	// 接收ServletContext
+	private ServletContext sc;
+
+	// 接收Request
+	private Map<String, Object> request;
+
+	// 分析完成返回的json数据
+	private Map<String, Object> analyzeResultJson;
+	// 接收要进行分析的题号
+	private Integer qid;
+
+	public Integer getQid() {
+		return qid;
+	}
+
+	public void setQid(Integer qid) {
+		this.qid = qid;
+	}
+
+	public Map<String, Object> getAnalyzeResultJson() {
+		return analyzeResultJson;
+	}
+
+	public void setAnalyzeResultJson(Map<String, Object> analyzeResultJson) {
+		this.analyzeResultJson = analyzeResultJson;
+	}
+
+	public Integer getSid() {
+		return sid;
+	}
+
+	public void setSid(Integer sid) {
+		this.sid = sid;
+	}
+
+	public List<Survey> getMySurveys() {
+		return mySurveys;
+	}
+
+	public void setMySurveys(List<Survey> mySurveys) {
+		this.mySurveys = mySurveys;
+	}
+
+	public File getLogoPhoto() {
+		return logoPhoto;
+	}
+
+	public void setLogoPhoto(File logoPhoto) {
+		this.logoPhoto = logoPhoto;
+	}
+
+	public String getLogoPhotoFileName() {
+		return logoPhotoFileName;
+	}
+
+	public void setLogoPhotoFileName(String logoPhotoFileName) {
+		this.logoPhotoFileName = logoPhotoFileName;
+	}
+
+	public String getLogoPhotoContentType() {
+		return logoPhotoContentType;
+	}
+
+	public void setLogoPhotoContentType(String logoPhotoContentType) {
+		this.logoPhotoContentType = logoPhotoContentType;
+	}
+
+	/**
+	 * 查询我的调查
+	 * 
+	 * @return
+	 */
+	public String mySurveys() {
+		this.mySurveys = surveyService.findMySurveys(user);
+		return SUCCESS;
+	}
+
+	/**
+	 * 新建调查
+	 * 
+	 * @return
+	 */
+	public String newSurvey() {
+		this.model = surveyService.newSurvey(user);
+		System.out.println("页面个数" + model.getPages().size());
+		return "designSurveyPage";
+	}
+
+	/**
+	 * 跳转设计调查
+	 * 
+	 * @return
+	 */
+	public String designSurvey() {
+		if (this.sid == null || this.sid == 0) {
+			return ERROR;
+		}
+		this.model = surveyService.getSuveyWithChildren(this.sid);
+		return "designSurveyPage";
+	}
+
+	/**
+	 * 跳转编辑调查
+	 * 
+	 * @return
+	 */
+	public String editSurvey() {
+		this.model = surveyService.getSuveyWithChildren(this.sid);
+		return "editSurveyPage";
+	}
+
+	/**
+	 * 保存编辑过的调查
+	 * 
+	 * @return
+	 */
+	public String updateSurvey() {
+		// 重新置入User对象
+		model.setUser(user);
+		surveyService.updateSurvey(model);
+		// 设置编辑Survey页面参数sid
+		setSid(model.getId());
+		return "designSurveyAction";
+	}
+
+	/**
+	 * 删除调查
+	 * 
+	 * @return
+	 */
+	public String deleteSurvey() {
+		surveyService.deleteSurvey(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 情况调查
+	 * 
+	 * @return
+	 */
+	public String clearAnswer() {
+		surveyService.clearAnswer(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 切换状态
+	 * 
+	 * @return
+	 */
+	public String toggleStatus() {
+		surveyService.toggleStatus(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 跳转添加Logo界面
+	 * 
+	 * @return
+	 */
+	public String toAddLogo() {
+		return "addLogoPage";
+	}
+
+	/**
+	 * 上传Logo
+	 * 
+	 * @return
+	 */
+	public String addLogo() {
+		if (ValidateUtil.isValid(this.logoPhotoFileName)) {
+			// 文件上传
+			String filename = System.nanoTime() + this.logoPhotoFileName;
+			File desFile = new File(root, filename);
+			try {
+				FileUtils.copyFile(logoPhoto, desFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 更新路径
+			surveyService.updateLogoPhotoPath(sid, "/upload/" + filename);
+		}
+		return "designSurveyAction";
+	}
+
+	/**
+	 * 跳转至分析页面
+	 * 
+	 * @return
+	 */
+	public String analyzeSurvey() {
+		this.model = surveyService.getSuveyWithChildren(sid);
+		return "analyzeSurveyPage";
+	}
+
+	/**
+	 * 执行分析操作，返回GSON信息
+	 * 
+	 * @return
+	 */
+	public String doAnalyze() {
+		// 状态信息
+		String status = null;
+		String info = null;
+		String title = null;
+		
+		//
+		List<String> legendData = new ArrayList<String>();
+		//具体数据
+		List<SeriesDataModel> seriesData = new ArrayList<SurveyAction.SeriesDataModel>();
+		QuestionStatisticModel qsm = statisticService.statistic(qid);
+		List<OptionStatisticModel> osms = qsm.getOpSMS();
+		Question q = qsm.getQuestion();
+		//初始化返回的json对象
+		analyzeResultJson = new HashMap<String, Object>();
+		if (qsm.getCount() < 1) {
+			status = "err";
+			info = "信息量为空，分析被中断";
+		} else {
+			status = "ok";
+			title = q.getTitle();
+			analyzeResultJson.put("title", title);
+			
+			if(q.getQuestionType()<6){
+				//非矩阵题型
+				
+				//迭代添加标签统计模型
+				SeriesDataModel seriesDataModel = null;
+				for (OptionStatisticModel osm : osms) {
+					legendData.add(osm.getOptionLabel());
+					seriesDataModel = new SeriesDataModel(osm.getOptionLabel(),
+							osm.getCount());
+					seriesData.add(seriesDataModel);
+				}
+				analyzeResultJson.put("legendData", legendData);
+				analyzeResultJson.put("seriesData", seriesData);
+			}else{
+				//矩阵题型
+				
+			}
+		}
+		
+		analyzeResultJson.put("status", status);
+		analyzeResultJson.put("info", info);
+		
+		
+		return "analyzeSurvey";
+	}
+
+	public class SeriesDataModel {
+		private String name;
+		private float value;
+
+		public SeriesDataModel(String name, float value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public float getValue() {
+			return value;
+		}
+
+		public void setValue(float value) {
+			this.value = value;
+		}
+
+	}
+
+	/**
+	 * 注入User
+	 */
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public void setServletContext(ServletContext arg0) {
+		this.sc = arg0;
+		root = sc.getRealPath("/upload");
+	}
+
+	public void setRequest(Map<String, Object> arg0) {
+		this.request = arg0;
+	}
+}

@@ -1,0 +1,15 @@
+1396837667887	Delete elements
+1396837673016	Delete element
+1396839511287	Rename package 'test'
+1396839634461	Delete elements
+1396839665372	Rename package 'dao'
+1396839674764	Rename package 'dao.impl'
+1396839733649	Delete element
+1396839758941	Rename package 'service'
+1396839766684	Rename package 'service.impl'
+1396839807124	Rename package 'action'
+1396839819780	Rename package 'com.pas.survey.action'
+1396839833066	Rename package 'interceptor'
+1396839859261	Rename package 'util'
+1396840123470	Delete element
+1396860840289	Move compilation unit

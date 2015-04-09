@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 2 elements from project &apos;MavenWeb&apos;&#x0D;&#x0A;- Original project: &apos;MavenWeb&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     9289609185396901_Girl (4).jpg&#x0D;&#x0A;     93048000526176Lionheart-Kings-Crusade_1366x768.jpg" description="Delete elements" element1="src/main/webapp/WEB-INF/upload/imgs/9289609185396901_Girl (4).jpg" element2="src/main/webapp/WEB-INF/upload/imgs/93048000526176Lionheart-Kings-Crusade_1366x768.jpg" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="2" stamp="1397528184652" subPackages="false" version="1.0"/>
+</session>

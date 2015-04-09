@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;myssh/WebRoot&apos; to &apos;WebContent&apos;" description="Rename resource &apos;WebRoot&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="WebRoot" name="WebContent" stamp="1397527138601" updateReferences="true"/>
+</session>

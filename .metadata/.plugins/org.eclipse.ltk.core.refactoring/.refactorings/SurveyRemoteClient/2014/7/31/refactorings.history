@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 3 elements from project &apos;SurveyRemoteClient&apos;&#x0D;&#x0A;- Original project: &apos;SurveyRemoteClient&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     com.pas.spring.service.StatisticService.java&#x0D;&#x0A;     com.pas.spring.service.Student.java&#x0D;&#x0A;     com.pas.spring.service.WelcomeService.java" description="Delete elements" element1="/src\/main\/java&lt;com.pas.spring.service{Student.java" element2="/src\/main\/java&lt;com.pas.spring.service{StatisticService.java" element3="/src\/main\/java&lt;com.pas.spring.service{WelcomeService.java" elements="3" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1406774456587" subPackages="false" version="1.0"/>
+</session>

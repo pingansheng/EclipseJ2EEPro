@@ -1,0 +1,7 @@
+computeSourcePath=true
+contextsDir=E\:\\greensoft\\CommonDEV\\apache-tomcat-7.0.47\\conf\\Catalina\\localhost
+eclipse.preferences.version=1
+fixTomcatHomeBug=fixed
+tomcatConfigFile=E\:\\greensoft\\CommonDEV\\apache-tomcat-7.0.47\\conf\\server.xml
+tomcatDir=E\:\\greensoft\\CommonDEV\\apache-tomcat-7.0.47
+tomcatVersion=tomcatV7

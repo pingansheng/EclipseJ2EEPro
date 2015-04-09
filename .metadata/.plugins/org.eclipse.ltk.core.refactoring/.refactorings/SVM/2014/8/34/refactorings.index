@@ -1,0 +1,14 @@
+1408234318160	Copy file
+1408240407150	Rename resource 'SVMenergyTrain'
+1408240418326	Copy file
+1408240467797	Copy files
+1408243267576	Extract method 'loadTrainDataSet'
+1408243631198	Extract method 'findParaBy3Step'
+1408265268295	Extract method 'showPredict_True'
+1408266664140	Delete elements
+1408266889670	Extract method 'findPara3Step'
+1408266937783	Extract method 'saveModel'
+1408274051835	Extract method 'preProcessTestData'
+1408275812911	Copy file
+1408276273534	Copy file
+1408325179424	Delete element

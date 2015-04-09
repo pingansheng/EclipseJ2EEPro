@@ -1,0 +1,6 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Sat Jan 17 18:05:15 CST 2015
+maven-resources-plugin-2.5.pom>nexus-osc=
+maven-resources-plugin-2.5.pom>central=
+maven-resources-plugin-2.5.jar>nexus-osc=
+maven-resources-plugin-2.5.jar>central=
