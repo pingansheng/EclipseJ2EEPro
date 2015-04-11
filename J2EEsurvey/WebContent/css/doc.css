@@ -1,0 +1,17 @@
+.base-container {
+	border-radius: 7px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
+.footer {
+	position: fixed;
+	vertical-align: middle;
+	left: 0px;
+	bottom: 0px;
+	height: 20px;
+	line-height: 20px;
+	overflow: hidden;
+	width: 100%;
+	background: #E7E7E7;
+}

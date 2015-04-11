@@ -1,0 +1,4 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Apr 10 16:26:05 CST 2015
+default-http\://maven.oschina.net/content/groups/public/.lastUpdated=1428654365917
+http\://maven.oschina.net/content/groups/public/.error=Could not transfer artifact com.cloudhopper.proxool\:proxool\:pom\:0.9.1 from/to nexus-osc (http\://maven.oschina.net/content/groups/public/)\: Connection refused\: no further information to http\://maven.oschina.net/content/groups/public/com/cloudhopper/proxool/proxool/0.9.1/proxool-0.9.1.pom

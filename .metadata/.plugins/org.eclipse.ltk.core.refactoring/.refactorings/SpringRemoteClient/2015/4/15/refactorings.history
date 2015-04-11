@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename source folder &apos;SpringRemoteClient/src/test/resource&apos; to &apos;resources&apos;&#x0D;&#x0A;- Original project: &apos;SpringRemoteClient&apos;&#x0D;&#x0A;- Original element: &apos;SpringRemoteClient/src/test/resource&apos;&#x0D;&#x0A;- Renamed element: &apos;SpringRemoteClient/src/main/resources&apos;" description="Rename source folder &apos;src/test/resource&apos;" id="org.eclipse.jdt.ui.rename.source.folder" input="/src\/test\/resource" name="resources" stamp="1428646866476" version="1.0"/>
+</session>

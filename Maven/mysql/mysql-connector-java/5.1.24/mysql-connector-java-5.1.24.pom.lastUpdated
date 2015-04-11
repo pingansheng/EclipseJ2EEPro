@@ -1,0 +1,4 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Apr 10 14:27:32 CST 2015
+default-http\://maven.oschina.net/content/groups/public/.lastUpdated=1428647252432
+http\://maven.oschina.net/content/groups/public/.error=Could not transfer artifact mysql\:mysql-connector-java\:pom\:5.1.24 from/to nexus-osc (http\://maven.oschina.net/content/groups/public/)\: Connection refused\: no further information to http\://maven.oschina.net/content/groups/public/mysql/mysql-connector-java/5.1.24/mysql-connector-java-5.1.24.pom

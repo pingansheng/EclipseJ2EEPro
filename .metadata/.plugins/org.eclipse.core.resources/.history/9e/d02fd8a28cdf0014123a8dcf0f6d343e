@@ -1,0 +1,525 @@
+package com.pas.survey.struts2.action;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.interceptor.RequestAware;
+import org.apache.struts2.util.ServletContextAware;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+
+import com.pas.survey.model.Question;
+import com.pas.survey.model.Survey;
+import com.pas.survey.model.User;
+import com.pas.survey.model.statistic.OptionStatisticModel;
+import com.pas.survey.model.statistic.QuestionStatisticModel;
+import com.pas.survey.service.StatisticService;
+import com.pas.survey.service.SurveyService;
+import com.pas.survey.struts2.UserAware;
+import com.pas.survey.util.ValidateUtil;
+
+/**
+ * SurveyAction
+ * 
+ * @author pingansheng
+ * 
+ */
+@Controller("surveyaction")
+@Scope("prototype")
+public class SurveyAction extends BaseAction<Survey> implements UserAware,
+		RequestAware, ServletContextAware {
+
+	private static final long serialVersionUID = 2799920547942837306L;
+
+	// Logo图片文件信息
+	private File logoPhoto;
+	private String logoPhotoFileName;
+	private String logoPhotoContentType;
+	private String root;
+	@Resource(name = "surveyService")
+	private SurveyService surveyService;
+	@Resource(name = "statisticService")
+	private StatisticService statisticService;
+	// 调查集合
+	private List<Survey> mySurveys;
+
+	// 接收sid参数
+	private Integer sid=-1;
+
+	// 内部User对象接收引用
+	private User user;
+
+	// 接收ServletContext
+	private ServletContext sc;
+
+	// 接收Request
+	private Map<String, Object> request;
+
+	// 分析完成返回的json数据
+	private Map<String, Object> analyzeResultJson;
+	// 接收要进行分析的题号
+	private Integer qid;
+
+	// 分析的图表类型
+	private int analyzeType = -1;
+
+	public int getAnalyzeType() {
+		return analyzeType;
+	}
+
+	public void setAnalyzeType(int analyzeType) {
+		this.analyzeType = analyzeType;
+	}
+
+	public Integer getQid() {
+		return qid;
+	}
+
+	public void setQid(Integer qid) {
+		this.qid = qid;
+	}
+
+	public Map<String, Object> getAnalyzeResultJson() {
+		return analyzeResultJson;
+	}
+
+	public void setAnalyzeResultJson(Map<String, Object> analyzeResultJson) {
+		this.analyzeResultJson = analyzeResultJson;
+	}
+
+	public Integer getSid() {
+		return sid;
+	}
+
+	public void setSid(Integer sid) {
+		this.sid = sid;
+	}
+
+	public List<Survey> getMySurveys() {
+		return mySurveys;
+	}
+
+	public void setMySurveys(List<Survey> mySurveys) {
+		this.mySurveys = mySurveys;
+	}
+
+	public File getLogoPhoto() {
+		return logoPhoto;
+	}
+
+	public void setLogoPhoto(File logoPhoto) {
+		this.logoPhoto = logoPhoto;
+	}
+
+	public String getLogoPhotoFileName() {
+		return logoPhotoFileName;
+	}
+
+	public void setLogoPhotoFileName(String logoPhotoFileName) {
+		this.logoPhotoFileName = logoPhotoFileName;
+	}
+
+	public String getLogoPhotoContentType() {
+		return logoPhotoContentType;
+	}
+
+	public void setLogoPhotoContentType(String logoPhotoContentType) {
+		this.logoPhotoContentType = logoPhotoContentType;
+	}
+
+	/**
+	 * 查询我的调查
+	 * 
+	 * @return
+	 */
+	public String mySurveys() {
+		this.mySurveys = surveyService.findMySurveys(user);
+		return SUCCESS;
+	}
+
+	/**
+	 * 新建调查
+	 * 
+	 * @return
+	 */
+	public String newSurvey() {
+		this.model = surveyService.newSurvey(user);
+		System.out.println("页面个数" + model.getPages().size());
+		return "designSurveyPage";
+	}
+
+	/**
+	 * 跳转设计调查
+	 * 
+	 * @return
+	 */
+	public String designSurvey() {
+		if (this.sid == null || this.sid == 0) {
+			return ERROR;
+		}
+		this.model = surveyService.getSuveyWithChildren(this.sid);
+		return "designSurveyPage";
+	}
+
+	/**
+	 * 跳转编辑调查
+	 * 
+	 * @return
+	 */
+	public String editSurvey() {
+		this.model = surveyService.getSuveyWithChildren(this.sid);
+		return "editSurveyPage";
+	}
+
+	/**
+	 * 保存编辑过的调查
+	 * 
+	 * @return
+	 */
+	public String updateSurvey() {
+		// 重新置入User对象
+		model.setUser(user);
+		surveyService.updateSurvey(model);
+		// 设置编辑Survey页面参数sid
+		setSid(model.getId());
+		return "designSurveyAction";
+	}
+
+	/**
+	 * 删除调查
+	 * 
+	 * @return
+	 */
+	public String deleteSurvey() {
+		surveyService.deleteSurvey(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 情况调查
+	 * 
+	 * @return
+	 */
+	public String clearAnswer() {
+		surveyService.clearAnswer(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 切换状态
+	 * 
+	 * @return
+	 */
+	public String toggleStatus() {
+		surveyService.toggleStatus(sid);
+		return "findmysurveyAction";
+	}
+
+	/**
+	 * 跳转添加Logo界面
+	 * 
+	 * @return
+	 */
+	public String toAddLogo() {
+		return "addLogoPage";
+	}
+
+	/**
+	 * 上传Logo
+	 * 
+	 * @return
+	 */
+	public String addLogo() {
+		if (ValidateUtil.isValid(this.logoPhotoFileName)) {
+			// 文件上传
+			String filename = System.nanoTime() + this.logoPhotoFileName;
+			File desFile = new File(root, filename);
+			try {
+				FileUtils.copyFile(logoPhoto, desFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 更新路径
+			surveyService.updateLogoPhotoPath(sid, "/upload/" + filename);
+		}
+		return "designSurveyAction";
+	}
+
+	/**
+	 * 跳转至分析页面
+	 * 
+	 * @return
+	 */
+	public String analyzeSurvey() {
+		if (sid != -1) {
+			this.model = surveyService.getSuveyWithChildren(sid);
+		}
+		return "analyzeSurveyPage";
+	}
+
+	/**
+	 * 执行分析操作，返回GSON信息
+	 * 
+	 * @return
+	 */
+	public String doAnalyze() {
+		// 状态信息
+		String status = null;
+		String info = null;
+		String title = null;
+
+		// 序列标签集合
+		List<String> legendData = new ArrayList<String>();
+		// 用于柱状图的legend
+		List<String> barLegend = new ArrayList<String>();
+		// Series数据组
+		List<SeriesModel> SeriesList = new ArrayList<SurveyAction.SeriesModel>();
+		// 具体数据
+		List<SeriesDataModel> seriesData = new ArrayList<SurveyAction.SeriesDataModel>();
+		// 问题统计模型
+		QuestionStatisticModel qsm = statisticService.statistic(qid);
+		// 选项统计模型
+		List<OptionStatisticModel> osms = qsm.getOpSMS();
+		// 当前分析的题型
+		Question q = qsm.getQuestion();
+
+		// 初始化要返回的jsonMap对象
+		analyzeResultJson = new HashMap<String, Object>();
+
+		if (qsm.getCount() < 1) {
+			status = "err";
+			info = "信息量为空，分析被中断";
+		} else {
+			status = "ok";
+			title = q.getTitle();
+			analyzeResultJson.put("title", title);
+			analyzeResultJson.put("qsmCount", qsm.getCount());
+			
+			if (q.getQuestionType() < 6) {
+				// 非矩阵题型
+				// 柱状图的图例数据
+				barLegend.add(0, "数量");
+				// 序列数据模型
+				SeriesModel series = new SeriesModel();
+				// 柱状图的name必须和legend一致
+				series.setName(barLegend.get(0));
+				series.setRadius("50%");
+				series.setType(analyzeType == 0 ? "pie" : "bar");
+
+				// 迭代添加标签统计模型
+				SeriesDataModel seriesDataModel = null;
+				for (OptionStatisticModel osm : osms) {
+					legendData.add(osm.getOptionLabel());
+					seriesDataModel = new SeriesDataModel(osm.getOptionLabel(),
+							osm.getCount());
+					seriesData.add(seriesDataModel);
+					series.getData().add(seriesDataModel);
+				}
+
+				// 添加到序列数据集合
+				SeriesList.add(series);
+
+			} else {
+				// 矩阵题型
+				if (q.getQuestionType() != 8) {
+					// 矩阵单选与多选
+					Map<String,SeriesModel> matrixSeriesMap=new HashMap<String, SurveyAction.SeriesModel>();
+					SeriesModel series = null;
+					for (OptionStatisticModel osm : osms) {
+						// legend标签
+						String rowLable = osm.getMatrixRowLabel();
+						String colLable = osm.getMatrixColLabel();
+						int rowIndex=osm.getMatrixRowIndex();
+						int colIndex=osm.getMatrixColIndex();
+						int matrixCount=osm.getCount();
+						// 图例数据是列标签
+						//如果临时map中keyset中没有列索引则进行首次添加
+						if (!matrixSeriesMap.keySet().contains(colIndex+"")) {
+							barLegend.add(colLable);
+							// 每次有新的列标签出现 创建一个series对象
+							series = new SeriesModel();
+							series.setName(colLable);
+							series.setStack(q.getTitle());
+							series.setType("bar");
+							series.getData().add(new SeriesDataModel(colLable, matrixCount));
+							//添加到临时map中
+							matrixSeriesMap.put(colIndex+"", series);
+							//添加到序列数据列表中
+							SeriesList.add(series);
+						} else {
+							matrixSeriesMap.get(colIndex+"").getData().add(new SeriesDataModel(colLable, matrixCount));
+							//每次循环存在 则添加数据
+						}
+						// 添加x轴序列数据legendData指y轴类别序列，为行标签，此处为了与饼图一致
+						if (!matrixSeriesMap.keySet().contains("row"+rowIndex)) {
+							legendData.add(rowLable);
+							matrixSeriesMap.put("row"+rowIndex, null);
+						}
+					}
+				} else {
+					// 矩阵下拉
+					LinkedHashMap<String,List<SeriesDataModel>> matrixSelectDataMap=new LinkedHashMap<String, List<SeriesDataModel>>();
+					//存储行列标签0_0_row 0_0_col
+					LinkedHashMap<String, String> matrixLabel=new LinkedHashMap<String, String>();
+					for (OptionStatisticModel osm : osms) {
+						//行
+						int rowIndex=osm.getMatrixRowIndex();
+						String rowLabel=osm.getMatrixRowLabel();
+						//列
+						int colIndex=osm.getMatrixColIndex();
+						String colLabel=osm.getMatrixColLabel();
+						//选项
+						String selectLabel=osm.getMatrixSelectLabel();
+						//数量
+						int selectCount=osm.getCount();
+						String key=rowIndex+"_"+colIndex;
+						List<SeriesDataModel> seriesDataList=null;
+						if(!matrixSelectDataMap.keySet().contains(key)){
+							//没有该行该列对应的数据集合
+							seriesDataList=new ArrayList<SurveyAction.SeriesDataModel>();
+							seriesDataList.add(new SeriesDataModel(selectLabel,selectCount));
+							matrixSelectDataMap.put(key, seriesDataList);
+						}else{
+							//有该行该列对应的数据集合
+							matrixSelectDataMap.get(key).add(new SeriesDataModel(selectLabel,selectCount));
+						}
+						
+						//添加标签集合
+						matrixLabel.put(key+"_row", rowLabel);
+						matrixLabel.put(key+"_col", colLabel);
+					}
+					for(String option:q.getMatrixSelectOptionsArr())
+					{
+						legendData.add(option);
+					}
+					analyzeResultJson.put("matrixRowCount", q.getMatrixRowTitlesArr().length);
+					analyzeResultJson.put("matrixColCount", q.getMatrixColTitlesArr().length);
+					analyzeResultJson.put("matrixSelCount", q.getMatrixSelectOptionsArr().length);
+					analyzeResultJson.put("matrixSelSeriesList", matrixSelectDataMap);
+					analyzeResultJson.put("matrixLabel", matrixLabel);
+				}
+			}
+			analyzeResultJson.put("legendData", legendData);
+			analyzeResultJson.put("series", SeriesList);
+			analyzeResultJson.put("legend", barLegend);
+		}
+
+		analyzeResultJson.put("status", status);
+		analyzeResultJson.put("info", info);
+
+		return "analyzeSurvey";
+	}
+
+	/**
+	 * 数据序列模型
+	 */
+	public class SeriesModel {
+		private String name;
+		private String type;
+		private String stack;
+		private String radius = null;
+		private int barWidth = 30;
+		private List<SeriesDataModel> data = new ArrayList<SurveyAction.SeriesDataModel>();
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public void setType(String type) {
+			this.type = type;
+		}
+
+		public String getStack() {
+			return stack;
+		}
+
+		public void setStack(String stack) {
+			this.stack = stack;
+		}
+
+		public List<SeriesDataModel> getData() {
+			return data;
+		}
+
+		public void setData(List<SeriesDataModel> data) {
+			this.data = data;
+		}
+
+		public String getRadius() {
+			return radius;
+		}
+
+		public void setRadius(String radius) {
+			this.radius = radius;
+		}
+
+		public int getBarWidth() {
+			return barWidth;
+		}
+
+		public void setBarWidth(int barWidth) {
+			this.barWidth = barWidth;
+		}
+
+	}
+
+	public class SeriesDataModel {
+		private String name;
+		private float value;
+
+		public SeriesDataModel(String name, float value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public float getValue() {
+			return value;
+		}
+
+		public void setValue(float value) {
+			this.value = value;
+		}
+	}
+
+	/**
+	 * 注入User
+	 */
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public void setServletContext(ServletContext arg0) {
+		this.sc = arg0;
+		root = sc.getRealPath("/upload");
+	}
+
+	public void setRequest(Map<String, Object> arg0) {
+		this.request = arg0;
+	}
+}

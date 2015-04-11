@@ -4,11 +4,10 @@
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/JavaHttpServer" type="4"/>
 </workingSet>
 <workingSet editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1406860077720_3" label="SSH_Survey" name="SSH_Survey">
-<item elementID="=survey" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item elementID="=SpringRemoteClient" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/SurveyRemoteClient" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/SpringRemoteClient" type="4"/>
+<item elementID="=SurveyRemoteClient" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Servers" type="4"/>
-<item elementID="=SpringRemoteServer" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/SpringRemoteServer" type="4"/>
 </workingSet>
 <workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1398845689856_0" label="Window Working Set" name="Aggregate for window 1398845689855"/>
 </workingSetManager>
